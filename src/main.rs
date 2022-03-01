@@ -91,7 +91,7 @@ impl Map {
 
     pub async fn load_levels(&mut self) -> Result<(), String> {
         for i in 0..LEVEL_COUNT {
-            self.tiles[i] = serde_json::from_str(&load_string(&format!("./levels/{}.json", i)).await.map_err(|x| x.to_string())?).map_err(|x| x.to_string())?;
+            self.tiles[i] = serde_json::from_str(&load_string(&format!("levels/{}.json", i)).await.map_err(|x| x.to_string())?).map_err(|x| x.to_string())?;
         }
         Ok(())
     }
@@ -321,6 +321,8 @@ impl Head {
 
 #[macroquad::main("Rhythm")]
 async fn main() {
+    macroquad::file::set_pc_assets_folder("assets/");
+
     let mut head = Head::new();
     let camera = Camera::new();
     let mut game_state = GameState::new();
@@ -330,7 +332,7 @@ async fn main() {
     loop {
         clear_background(WHITE);
 
-        if is_key_pressed(KeyCode::Space) {
+        if is_key_pressed(KeyCode::Space) || is_mouse_button_pressed(MouseButton::Left) {
             let out = game_state.move_next(head.get_facing_angle());
             if out.is_some() {
                 match out.unwrap() {
