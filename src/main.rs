@@ -144,7 +144,7 @@ enum MoveNextReturn {
 impl GameState {
     pub fn new() -> Self {
         GameState {
-            speed: 5.0,
+            speed: 275.0,
             map:   Map::new(),
             current_tile: 0,
         }
@@ -263,10 +263,10 @@ impl Ball {
         draw_circle(self.pos.x + offset.x, self.pos.y + offset.y, BALL_SIZE, BLACK);
     }
 
-    pub fn update(&mut self, game_state: &GameState) {
+    pub fn update(&mut self, game_state: &GameState, dtime: f64) {
         self.pos.x = BALL_DISTANCE * self.angle.to_radians().sin();
         self.pos.y = BALL_DISTANCE * self.angle.to_radians().cos();
-        self.angle -= Angle(game_state.speed);
+        self.angle -= Angle(game_state.speed * dtime as f32);
     }
 
     pub fn get_angle(&self) -> &Angle {
@@ -299,8 +299,8 @@ impl Head {
         self.ball.draw(&(self.pos + *offset));
     }
 
-    pub fn update(&mut self, game_state: &GameState) {
-        self.ball.update(&game_state);
+    pub fn update(&mut self, game_state: &GameState, dtime: f64) {
+        self.ball.update(&game_state, dtime);
     }
 
     pub fn get_facing_angle(&self) -> &Angle {
@@ -329,6 +329,7 @@ async fn main() {
 
     game_state.get_map_mut().load_levels().await.unwrap();
 
+    let mut now = get_time();
     loop {
         clear_background(WHITE);
 
@@ -342,7 +343,11 @@ async fn main() {
             }
         }
 
-        head.update(&game_state);
+        let nnow = get_time();
+        let dtime = nnow - now;
+        now = nnow;
+
+        head.update(&game_state, dtime);
 
         game_state.draw_map(&camera.pos);
         head.draw(camera.get_pos());
