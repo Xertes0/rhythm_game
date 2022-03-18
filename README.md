@@ -1,4 +1,5 @@
 # Rhythm Game
+! This is just a prototype !
 
 ## Run native
 `cargo run`
